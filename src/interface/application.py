@@ -85,34 +85,6 @@ st.markdown("""
         color: white !important;
     }
     
-    /* Badges de confiance */
-    .confiance-elevee {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        padding: 10px 20px;
-        border-radius: 30px;
-        display: inline-block;
-        font-weight: bold;
-        color: #2d3436;
-    }
-    
-    .confiance-moyenne {
-        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-        padding: 10px 20px;
-        border-radius: 30px;
-        display: inline-block;
-        font-weight: bold;
-        color: #2d3436;
-    }
-    
-    .confiance-faible {
-        background: linear-gradient(135deg, #fd79a8 0%, #e17055 100%);
-        padding: 10px 20px;
-        border-radius: 30px;
-        display: inline-block;
-        font-weight: bold;
-        color: white;
-    }
-    
     /* Boutons personnalisés */
     .stButton > button {
         background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
@@ -218,21 +190,6 @@ st.markdown("""
         0% { width: 0%; }
         50% { width: 70%; }
         100% { width: 100%; }
-    }
-    
-    /* Spinner personnalisé */
-    .custom-spinner {
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        border: 4px solid rgba(255,255,255,0.3);
-        border-radius: 50%;
-        border-top-color: #a8e6cf;
-        animation: spin 1s ease-in-out infinite;
-    }
-    
-    @keyframes spin {
-        to { transform: rotate(360deg); }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -480,28 +437,6 @@ def afficher_sidebar():
 # AFFICHAGE RÉPONSE ET SOURCES
 # ════════════════════════════════════════════════════════════════════════════
 
-def afficher_badge_confiance(confiance: float):
-    """Affiche un indicateur coloré et joyeux selon le score de confiance."""
-    if confiance >= 0.7:
-        st.markdown(f"""
-        <div class="confiance-elevee">
-            🌟 Confiance élevée : {confiance:.0%}
-        </div>
-        """, unsafe_allow_html=True)
-    elif confiance >= 0.4:
-        st.markdown(f"""
-        <div class="confiance-moyenne">
-            🌤️ Confiance moyenne : {confiance:.0%}
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown(f"""
-        <div class="confiance-faible">
-            ⚠️ Confiance faible : {confiance:.0%}
-        </div>
-        """, unsafe_allow_html=True)
-
-
 def afficher_sources(sources: list):
     """Affiche les sources utilisées dans un expander coloré."""
     if not sources:
@@ -588,10 +523,7 @@ def traiter_question(question: str, agent):
         </div>
         """, unsafe_allow_html=True)
 
-        # Badge de confiance
-        afficher_badge_confiance(resultat["confiance"])
-
-        # Avertissement si confiance trop faible
+        # Avertissement si confiance trop faible (sans afficher le pourcentage)
         if not resultat["peut_repondre"]:
             st.info(
                 "ℹ️ Information non trouvée dans la base. "
@@ -639,8 +571,6 @@ def afficher_historique():
                     {msg['contenu']}
                 </div>
                 """, unsafe_allow_html=True)
-                
-                afficher_badge_confiance(msg.get("confiance", 0))
                 
                 if not msg.get("peut_repondre", True):
                     st.info(
