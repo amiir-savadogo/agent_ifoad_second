@@ -1,9 +1,9 @@
-# 🎓 Agent IA Assistant IFOAD-UJKZ
+#  Agent IA Assistant IFOAD-UJKZ
 ## Projet Data Science 2026 — Système RAG Hybride Avancé
 
 ---
 
-## 📌 Description du Projet
+##  Description du Projet
 
 Cet agent IA est un assistant intelligent capable de répondre précisément aux questions
 sur les **maquettes de cours**, **calendriers d'examens** et **modalités d'inscription**
@@ -12,7 +12,7 @@ de Burkina Faso.
 
 ---
 
-## 🚀 Architecture Technique — RAG Hybride Avancé (2026)
+##  Architecture Technique  (RAG Hybride Avancé)
 
 Notre système **dépasse le RAG classique** en implémentant un pipeline moderne :
 
@@ -64,21 +64,22 @@ Requête Utilisateur
 
 ---
 
-## 📦 Installation
+##  Installation
 
 ### 1. Cloner le dépôt
 ```bash
-git clone https://github.com/votre-groupe/agent-ifoad.git
-cd agent-ifoad
+git clone https://github.com/amiir-savadogo/agent_ifoad_second.git
+cd agent_ifoad_second
+
 ```
 
 ### 2. Créer un environnement virtuel
 ```bash
-python -m venv env_ifoad
+python -m venv venv
 # Windows
-env_ifoad\Scripts\activate
+venv\Scripts\activate
 # Linux/Mac
-source env_ifoad/bin/activate
+source venv/bin/activate
 ```
 
 ### 3. Installer les dépendances
@@ -89,27 +90,24 @@ pip install -r requirements.txt
 ### 4. Configurer les clés API
 ```bash
 cp config/.env.exemple config/.env
-# Remplir les valeurs dans config/.env
 ```
 
-### 5. Collecter les données
+### 5. ouvrir le fichier .env et remplacer la clé API
 ```bash
-python src/collecte/scraper_ujkz.py
+nano config/.env
+```
+## Enregistre avec Ctrl + O (Write Out), valide avec Entrée.
+## Quitte avec Ctrl + X. 
+
+### 6. lancer le projet
+```bash
+python lancer.py
 ```
 
-### 6. Vectoriser les données
-```bash
-python src/ingestion/vectoriser.py
-```
-
-### 7. Lancer l'interface
-```bash
-streamlit run src/interface/application.py
-```
 
 ---
 
-## 🏗️ Structure du Projet
+##  Structure du Projet
 
 ```
 agent_ifoad/
@@ -138,12 +136,11 @@ agent_ifoad/
 
 ---
 
-## 👥 Groupe
+## Groupe
 
-- Membre 1 : [Nom Prénom]
-- Membre 2 : [Nom Prénom]
-- Membre 3 : [Nom Prénom]
+- Membre 1 : NAKELSE Adjara
+- Membre 2 : NONGUIERMA Florent
+- Membre 3 : SAVADOGO Amiir
 
-**Classe :** Master 1 IFOAD — UJKZ
+**Classe :** Master 1 IFOAD/UJKZ
 **Enseignant :** Dr Delwende D. Arthur Sawadogo
-**Date de présentation :** Lundi 13 Juillet 2026
