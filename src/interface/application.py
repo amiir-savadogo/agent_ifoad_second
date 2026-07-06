@@ -9,6 +9,8 @@ Version corrigée v2 - Correction AttributeError tuple
 import sys
 from pathlib import Path
 from datetime import datetime
+import random
+import time
 
 import streamlit as st
 
@@ -27,11 +29,213 @@ from config.parametres import (
 # ════════════════════════════════════════════════════════════════════════════
 
 st.set_page_config(
-    page_title="Assistant IFOAD-UJKZ",
+    page_title="🎓 Assistant IFOAD-UJKZ",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# ─── CSS Personnalisé pour un design joyeux ──────────────────────────────
+st.markdown("""
+<style>
+    /* Fond général */
+    .stApp {
+        background: linear-gradient(135deg, #BBDEFB 0%, #A5D6A7 100%);
+        min-height: 100vh;
+        position: relative;
+    }
+    
+    /* Amélioration de la lisibilité */
+    .stApp::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.08);
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    /* Cartes de messages */
+    .main > div {
+        background: rgba(255,255,255,0.95);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 10px 0;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    /* En-tête avec couleurs IFOAD */
+    .custom-header {
+        background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #388E3C 100%);
+        padding: 25px 20px;
+        border-radius: 20px;
+        color: white !important;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(46, 125, 50, 0.4);
+        border: 2px solid rgba(165, 214, 167, 0.3);
+    }
+    
+    .custom-header h1,
+    .custom-header p {
+        color: white !important;
+    }
+    
+    /* Badges de confiance */
+    .confiance-elevee {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        padding: 10px 20px;
+        border-radius: 30px;
+        display: inline-block;
+        font-weight: bold;
+        color: #2d3436;
+    }
+    
+    .confiance-moyenne {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        padding: 10px 20px;
+        border-radius: 30px;
+        display: inline-block;
+        font-weight: bold;
+        color: #2d3436;
+    }
+    
+    .confiance-faible {
+        background: linear-gradient(135deg, #fd79a8 0%, #e17055 100%);
+        padding: 10px 20px;
+        border-radius: 30px;
+        display: inline-block;
+        font-weight: bold;
+        color: white;
+    }
+    
+    /* Boutons personnalisés */
+    .stButton > button {
+        background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
+        border: none;
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-weight: bold;
+        color: #2d3436;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(168,230,207,0.4);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(168,230,207,0.6);
+    }
+    
+    /* Sidebar personnalisée */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #2d3436 0%, #636e72 100%);
+    }
+    
+    section[data-testid="stSidebar"] * {
+        color: white !important;
+    }
+    
+    section[data-testid="stSidebar"] .stButton > button {
+        background: linear-gradient(135deg, #fd79a8 0%, #e17055 100%);
+        color: white !important;
+    }
+    
+    section[data-testid="stSidebar"] .stButton > button:hover {
+        background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
+    }
+    
+    /* Zone de saisie */
+    .stChatInputContainer {
+        background: rgba(255,255,255,0.9);
+        border-radius: 30px;
+        padding: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    /* Messages */
+    [data-testid="stChatMessage"] {
+        background: white;
+        border-radius: 15px;
+        padding: 15px;
+        margin: 10px 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    [data-testid="stChatMessage"]:hover {
+        box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    
+    /* Expander */
+    .streamlit-expanderHeader {
+        background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%);
+        border-radius: 30px !important;
+        font-weight: bold;
+        color: #2d3436;
+    }
+    
+    /* Métriques */
+    [data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+        color: #fd79a8 !important;
+    }
+    
+    /* Animations */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .floating {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    /* Barre de progression personnalisée */
+    .progress-container {
+        background: rgba(255,255,255,0.2);
+        border-radius: 30px;
+        padding: 5px;
+        margin: 10px 0;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #a8e6cf, #fd79a8, #a29bfe);
+        height: 8px;
+        border-radius: 30px;
+        transition: width 0.5s ease;
+        width: 0%;
+        animation: progress 3s ease-in-out infinite;
+    }
+    
+    @keyframes progress {
+        0% { width: 0%; }
+        50% { width: 70%; }
+        100% { width: 100%; }
+    }
+    
+    /* Spinner personnalisé */
+    .custom-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #a8e6cf;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════════════════════════════
 # INITIALISATION SESSION
@@ -51,22 +255,92 @@ def initialiser_session():
         st.session_state.nb_questions = 0
     if "question_suggeree" not in st.session_state:
         st.session_state.question_suggeree = ""
+    if "emojis" not in st.session_state:
+        st.session_state.emojis = ["🌟", "✨", "🌈", "🎉", "💫", "🌸", "🌺", "🌻", "🌷", "🌹"]
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# CHARGEMENT AGENT
+# CHARGEMENT AGENT AVEC PROGRESS BAR
+# ════════════════════════════════════════════════════════════════════════════
+
+def charger_agent_avec_progression():
+    """Charge l'agent avec affichage de progression."""
+    progress_container = st.empty()
+    status_container = st.empty()
+    
+    etapes = [
+        "🔍 Initialisation des modules...",
+        "📚 Chargement des embeddings...",
+        "🗂️ Indexation de la base vectorielle...",
+        "⚙️ Configuration du reranker...",
+        "🤖 Initialisation du LLM...",
+        "✅ Agent prêt !"
+    ]
+    
+    progress_bar = progress_container.progress(0)
+    
+    for i, etape in enumerate(etapes):
+        status_container.info(f"⏳ {etape}")
+        progress = (i + 1) / len(etapes)
+        progress_bar.progress(progress)
+        time.sleep(0.3)
+    
+    status_container.info("⏳ Chargement de l'agent RAG Hybride...")
+    
+    try:
+        from src.agent.pipeline_rag import AgentRAGHybride
+        agent = AgentRAGHybride()
+        status_container.success("✅ Agent chargé avec succès !")
+        progress_bar.progress(1.0)
+        time.sleep(0.5)
+        progress_container.empty()
+        status_container.empty()
+        return agent
+    except Exception as e:
+        status_container.error(f"❌ Erreur lors du chargement : {str(e)}")
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# CHARGEMENT AGENT (mis en cache - chargé une seule fois)
 # ════════════════════════════════════════════════════════════════════════════
 
 @st.cache_resource(show_spinner=False)
 def charger_agent():
     """
     Charge l'agent RAG Hybride une seule fois grâce au cache Streamlit.
-
-    CORRECTION : ne retourne JAMAIS un tuple.
-    Lève une exception en cas d'erreur → capturée proprement dans main().
+    Les modèles lourds (embeddings, reranker) ne sont chargés qu'au 1er lancement.
     """
-    from src.agent.pipeline_rag import AgentRAGHybride
-    return AgentRAGHybride()
+    try:
+        from src.agent.pipeline_rag import AgentRAGHybride
+        return AgentRAGHybride()
+    except Exception as e:
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# CHARGEMENT RAPIDE - SIMPLE INDICATEUR
+# ════════════════════════════════════════════════════════════════════════════
+
+def afficher_chargement_simple():
+    """Affiche un indicateur de chargement simple."""
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("""
+        <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 80px; margin-bottom: 20px;">🚀</div>
+            <h2 style="color: #2d3436;">Chargement de l'agent IA...</h2>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <p style="color: #636e72; margin-top: 15px;">
+                ⏳ Cette opération peut prendre 1-2 minutes au premier lancement
+            </p>
+            <p style="color: #b2bec3; font-size: 0.9rem;">
+                Les modèles sont mis en cache pour les prochaines utilisations
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -79,12 +353,12 @@ def verifier_configuration() -> bool:
 
     if not CLE_API_GROQ or CLE_API_GROQ == "votre_cle_groq_ici":
         st.error(
-            "🔑 **Clé API Groq manquante !**\n\n"
-            "1. Allez sur [console.groq.com](https://console.groq.com)\n"
-            "2. Créez un compte gratuit (sans carte bancaire)\n"
-            "3. API Keys → Create API Key → copiez la clé `gsk_...`\n"
-            "4. Ouvrez `config/.env` et remplacez `votre_cle_groq_ici` par votre clé\n"
-            "5. Relancez l'application"
+            "🚀 **Clé API Groq manquante !**\n\n"
+            "1️⃣ Allez sur [console.groq.com](https://console.groq.com)\n"
+            "2️⃣ Créez un compte gratuit (sans carte bancaire)\n"
+            "3️⃣ API Keys → Create API Key → copiez la clé `gsk_...`\n"
+            "4️⃣ Ouvrez `config/.env` et remplacez `votre_cle_groq_ici` par votre clé\n"
+            "5️⃣ Relancez l'application"
         )
         ok = False
 
@@ -95,7 +369,7 @@ def verifier_configuration() -> bool:
         base_vide = True
 
     if base_vide:
-        st.error(
+        st.warning(
             "🗄️ **Base vectorielle vide !**\n\n"
             "Lancez ces commandes dans l'ordre :\n"
             "```\npython src/collecte/scraper_ujkz.py\n"
@@ -103,44 +377,62 @@ def verifier_configuration() -> bool:
         )
         ok = False
 
+    if ok:
+        st.success("✅ Toutes les configurations sont prêtes !")
+
     return ok
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# SIDEBAR
+# SIDEBAR JOYEUSE
 # ════════════════════════════════════════════════════════════════════════════
 
 def afficher_sidebar():
-    """Panneau latéral : statut, questions suggérées, actions."""
+    """Panneau latéral coloré avec questions suggérées."""
     with st.sidebar:
-        st.title("🎓 IFOAD-UJKZ")
-        st.caption("Assistant IA Intelligent")
+        # En-tête décoré avec icône
+        st.markdown("""
+        <div style="text-align: center; padding: 10px;">
+            <div style="
+                font-size: 80px;
+                line-height: 1;
+                margin-bottom: 10px;
+                filter: drop-shadow(0 4px 15px rgba(0,0,0,0.3));
+                transition: transform 0.3s ease;
+            ">
+                🎓
+            </div>
+            <h2 style="color: white; margin: 0; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">IFOAD-UJKZ</h2>
+            <p style="color: #C8E6C9; font-size: 0.9rem; margin-top: 5px;">🤖 Assistant IA Intelligent</p>
+        </div>
+        """, unsafe_allow_html=True)
+
         st.divider()
 
         # ─── Statut ──────────────────────────────────────────────────────
-        st.subheader("⚙️ Statut")
+        st.markdown("### 📊 Statut")
         if st.session_state.agent_charge:
             st.success("✅ Agent opérationnel")
-            st.caption(f"Modèle : `{MODELE_LLM}`")
-            st.caption(f"Docs/réponse : `{NOMBRE_DOCS_FINAL}`")
+            st.caption(f"🤖 Modèle : `{MODELE_LLM}`")
+            st.caption(f"📚 Docs/réponse : `{NOMBRE_DOCS_FINAL}`")
         elif st.session_state.erreur_chargement:
             st.error("❌ Erreur de chargement")
             with st.expander("Voir l'erreur"):
                 st.code(st.session_state.erreur_chargement)
         else:
-            st.warning("⏳ En cours de chargement...")
+            st.warning("⏳ Chargement en cours...")
 
         st.divider()
 
         # ─── Questions suggérées ──────────────────────────────────────────
-        st.subheader("💡 Questions fréquentes")
+        st.markdown("### 💡 Questions populaires")
 
         questions = [
-            "📚 Quelles formations propose l'IFOAD ?",
+            "🎯 Quelles formations propose l'IFOAD ?",
             "📝 Comment s'inscrire à l'IFOAD ?",
             "📅 Quelles sont les dates des examens ?",
             "💰 Quels sont les frais de scolarité ?",
-            "📋 Quels documents pour le dossier ?",
+            "📄 Quels documents pour le dossier ?",
             "📞 Comment contacter l'IFOAD ?",
             "🎓 Quels sont les débouchés du Master ?",
             "🗓️ Quand commencent les cours ?",
@@ -154,13 +446,18 @@ def afficher_sidebar():
         st.divider()
 
         # ─── Stats ───────────────────────────────────────────────────────
-        st.subheader("📊 Session")
-        st.metric("Questions posées", st.session_state.nb_questions)
+        st.markdown("### 📊 Session")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("💬 Questions", st.session_state.nb_questions)
+        with col2:
+            st.metric("😊 Humeur", random.choice(["🌟", "✨", "🌈"]))
 
         st.divider()
 
         # ─── Actions ─────────────────────────────────────────────────────
-        if st.button("🗑️ Nouvelle conversation", use_container_width=True):
+        if st.button("🔄 Nouvelle conversation", use_container_width=True):
             st.session_state.messages_chat = []
             st.session_state.nb_questions = 0
             if st.session_state.agent_rag is not None:
@@ -168,11 +465,15 @@ def afficher_sidebar():
             st.rerun()
 
         st.divider()
-        st.caption(
-            "Projet Data Science 2026\n"
-            "Master 1 IFOAD — UJKZ\n"
-            "Dr Delwende D. A. Sawadogo"
-        )
+        
+        # Pied de page
+        st.markdown("""
+        <div style="text-align: center; font-size: 0.8rem; color: #b2bec3;">
+            🎓 Projet Data Science 2026<br>
+            Master 1 IFOAD — UJKZ<br>
+            Dr Delwende D. A. Sawadogo
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -180,33 +481,62 @@ def afficher_sidebar():
 # ════════════════════════════════════════════════════════════════════════════
 
 def afficher_badge_confiance(confiance: float):
-    """Affiche un indicateur coloré selon le score de confiance."""
+    """Affiche un indicateur coloré et joyeux selon le score de confiance."""
     if confiance >= 0.7:
-        st.success(f"🟢 Confiance élevée : {confiance:.0%}")
+        st.markdown(f"""
+        <div class="confiance-elevee">
+            🌟 Confiance élevée : {confiance:.0%}
+        </div>
+        """, unsafe_allow_html=True)
     elif confiance >= 0.4:
-        st.warning(f"🟡 Confiance moyenne : {confiance:.0%}")
+        st.markdown(f"""
+        <div class="confiance-moyenne">
+            🌤️ Confiance moyenne : {confiance:.0%}
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        st.error(f"🔴 Confiance faible : {confiance:.0%}")
+        st.markdown(f"""
+        <div class="confiance-faible">
+            ⚠️ Confiance faible : {confiance:.0%}
+        </div>
+        """, unsafe_allow_html=True)
 
 
 def afficher_sources(sources: list):
-    """Affiche les sources utilisées dans un expander."""
+    """Affiche les sources utilisées dans un expander coloré."""
     if not sources:
         return
+    
     with st.expander(f"📚 Sources utilisées ({len(sources)} documents)"):
         for idx, src in enumerate(sources, 1):
             icones = {
-                "ujkz_web": "🌐", "ujkz_pdf": "📄",
-                "ujkz_demo": "📋", "facebook_ifoad": "📱",
-                "facebook_demo": "📱", "curriculum_master": "🎓",
+                "ujkz_web": "🌐",
+                "ujkz_pdf": "📄",
+                "ujkz_demo": "🎯",
+                "facebook_ifoad": "📱",
+                "facebook_demo": "💬",
+                "curriculum_master": "🎓",
             }
-            icone = icones.get(src.get("type", ""), "📄")
-            st.markdown(
-                f"**{icone} [{idx}] {src.get('titre', 'Sans titre')}**  \n"
-                f"Pertinence : `{src.get('pertinence', '?')}` · "
-                f"Type : `{src.get('type', '?')}`  \n"
-                f"*\"{src.get('extrait', '')}\"*"
-            )
+            icone = icones.get(src.get("type", ""), "📎")
+            
+            couleurs = ["#fd79a8", "#a8e6cf", "#ffeaa7", "#74b9ff", "#a29bfe"]
+            color = random.choice(couleurs)
+            
+            st.markdown(f"""
+            <div style="
+                background: {color}20;
+                border-radius: 15px;
+                padding: 15px;
+                margin: 10px 0;
+                border-left: 5px solid {color};
+            ">
+                <b>{icone} [{idx}] {src.get('titre', 'Sans titre')}</b><br>
+                📊 Pertinence : <code>{src.get('pertinence', '?')}</code><br>
+                📂 Type : <code>{src.get('type', '?')}</code><br>
+                <i>"{src.get('extrait', '')[:200]}..."</i>
+            </div>
+            """, unsafe_allow_html=True)
+            
             url = src.get("url", "")
             if url and url.startswith("http"):
                 st.markdown(f"[🔗 Voir la source]({url})")
@@ -219,7 +549,7 @@ def afficher_sources(sources: list):
 
 def traiter_question(question: str, agent):
     """
-    Envoie la question à l'agent et affiche la réponse.
+    Envoie la question à l'agent et affiche la réponse avec style.
     CORRECTION : vérifie que agent est valide avant d'appeler .repondre()
     """
     # ─── Sécurité : vérifie que l'agent est un objet valide ─────────────
@@ -243,8 +573,20 @@ def traiter_question(question: str, agent):
                 st.error(f"❌ Erreur lors de la génération de la réponse : {e}")
                 return
 
-        # Affichage de la réponse
-        st.markdown(resultat["reponse"])
+        # Animation de chargement
+        st.balloons()
+
+        # Affichage de la réponse dans un cadre coloré
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+        ">
+            {resultat['reponse']}
+        </div>
+        """, unsafe_allow_html=True)
 
         # Badge de confiance
         afficher_badge_confiance(resultat["confiance"])
@@ -254,12 +596,16 @@ def traiter_question(question: str, agent):
             st.info(
                 "ℹ️ Information non trouvée dans la base. "
                 "Contactez l'IFOAD directement :\n"
-                "- 📧 ifoad@ujkz.bf\n"
-                "- 📞 (+226) 25 30 70 64"
+                "- ✉️ ifoad@ujkz.bf\n"
+                "- 📱 (+226) 25 30 70 64"
             )
 
         # Sources
         afficher_sources(resultat["sources"])
+
+        # Message d'encouragement
+        if st.session_state.nb_questions % 5 == 0 and st.session_state.nb_questions > 0:
+            st.success("🌟 Vous êtes une source d'inspiration ! Continuez à poser des questions !")
 
     # ─── Sauvegarde dans l'historique ────────────────────────────────────
     st.session_state.messages_chat.append({
@@ -276,19 +622,31 @@ def traiter_question(question: str, agent):
 
 
 def afficher_historique():
-    """Réaffiche tous les messages précédents de la conversation."""
+    """Réaffiche tous les messages précédents de la conversation avec style."""
     for msg in st.session_state.messages_chat:
         if msg["role"] == "user":
             with st.chat_message("user", avatar="👤"):
                 st.markdown(msg["contenu"])
         else:
             with st.chat_message("assistant", avatar="🎓"):
-                st.markdown(msg["contenu"])
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    border-radius: 15px;
+                    padding: 20px;
+                    margin: 10px 0;
+                ">
+                    {msg['contenu']}
+                </div>
+                """, unsafe_allow_html=True)
+                
                 afficher_badge_confiance(msg.get("confiance", 0))
+                
                 if not msg.get("peut_repondre", True):
                     st.info(
-                        "ℹ️ Contactez l'IFOAD : ifoad@ujkz.bf | (+226) 25 30 70 64"
+                        "🌸 Contactez l'IFOAD : ifoad@ujkz.bf | (+226) 25 30 70 64"
                     )
+                
                 afficher_sources(msg.get("sources", []))
 
 
@@ -301,13 +659,18 @@ def main():
 
     initialiser_session()
 
-    # ─── En-tête ─────────────────────────────────────────────────────────
-    st.title("🎓 Assistant IFOAD-UJKZ")
-    st.caption(
-        "Agent IA intelligent · Université Joseph Ki-Zerbo · Burkina Faso  \n"
-        "Architecture : RAG Hybride (HyDE + Dense + BM25 + RRF + Re-ranking)"
-    )
-    st.divider()
+    # ─── En-tête joyeux ─────────────────────────────────────────────────
+    st.markdown("""
+    <div class="custom-header floating">
+        <h1 style="font-size: 2.5rem; margin: 0;">🎓 Assistant IFOAD-UJKZ</h1>
+        <p style="font-size: 1.1rem; margin: 10px 0 0 0; opacity: 0.95;">
+            🤖 Agent IA intelligent · Université Joseph Ki-Zerbo · Burkina Faso
+        </p>
+        <p style="font-size: 0.9rem; margin: 5px 0 0 0; opacity: 0.85;">
+            🌟 Architecture : RAG Hybride (HyDE + Dense + BM25 + RRF + Re-ranking)
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # ─── Sidebar ─────────────────────────────────────────────────────────
     afficher_sidebar()
@@ -316,55 +679,54 @@ def main():
     if not verifier_configuration():
         st.stop()
 
-    # ─── Chargement de l'agent ────────────────────────────────────────────
+    # ─── Chargement de l'agent avec indicateur ────────────────────────────
     if not st.session_state.agent_charge:
-        with st.spinner("⏳ Chargement de l'agent IA... (1-2 min au 1er lancement)"):
-            try:
-                # CORRECTION : charger_agent() lève une exception si erreur,
-                # jamais un tuple → plus d'AttributeError
-                agent = charger_agent()
-
-                if agent is None or isinstance(agent, tuple):
-                    raise ValueError(
-                        "Chargement invalide. Vérifiez la base vectorielle."
-                    )
-
-                st.session_state.agent_rag = agent
-                st.session_state.agent_charge = True
-                st.session_state.erreur_chargement = ""
-
-            except Exception as e:
-                st.session_state.erreur_chargement = str(e)
-                st.error(
-                    f"❌ **Impossible de charger l'agent IA**\n\n"
-                    f"Erreur : `{e}`\n\n"
-                    f"**Solutions :**\n"
-                    f"1. Vérifiez `config/.env` → clé Groq correcte ?\n"
-                    f"2. Relancez : `python src/ingestion/vectoriser.py`\n"
-                    f"3. Redémarrez Streamlit"
-                )
-                st.stop()
-
+        # Afficher un indicateur de chargement moderne
+        afficher_chargement_simple()
+        
+        # Charger l'agent en arrière-plan
+        with st.spinner(""):
+            agent = charger_agent()
+        
+        # Vérification correcte : si agent est None, il y a eu une erreur
+        if agent is None:
+            st.error("😢 Impossible de charger l'agent. Vérifiez les logs et les dépendances.")
+            st.stop()
+        
+        st.session_state.agent_rag = agent
+        st.session_state.agent_charge = True
+        
+        # Nettoyer l'indicateur et recharger la page
         st.rerun()
 
     agent = st.session_state.agent_rag
 
-    # ─── Message de bienvenue ─────────────────────────────────────────────
+    # ─── Message de bienvenue (si conversation vide) ──────────────────────
     if not st.session_state.messages_chat:
         with st.chat_message("assistant", avatar="🎓"):
             st.markdown("""
-👋 **Bonjour ! Je suis votre Assistant IA de l'IFOAD-UJKZ.**
+            <div style="
+                background: linear-gradient(135deg, #F5F5DC 0%, #D4E9D6 100%);
+                border-radius: 15px;
+                padding: 20px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            ">
+                <h3 style="color: #2d3436; margin-top: 0;">👋 Bonjour ! Je suis votre Assistant IA de l'IFOAD-UJKZ !</h3>
 
-Je peux vous aider avec :
-- 📚 Les **formations disponibles** (Master 1 IFOAD, Licence MI...)
-- 📝 Les **modalités d'inscription** et documents requis
-- 📅 Le **calendrier académique** (cours, examens, regroupements)
-- 💰 Les **frais de scolarité** et modalités de paiement
-- 📞 Les **contacts** du secrétariat IFOAD
-
-**Comment puis-je vous aider aujourd'hui ?**
-            """)
+                Je peux vous aider avec :
+                
+                1. Les **formations disponibles** (Master 1 IFOAD, Licence MI...)
+                2. Les **modalités d'inscription** et documents requis
+                3. Le **calendrier académique** (cours, examens, regroupements)
+                4. Les **frais de scolarité** et modalités de paiement
+                5. Les **contacts** du secrétariat IFOAD
+                
+                Comment puis-je vous aider aujourd'hui ?
+                
+            </div>
+            """, unsafe_allow_html=True)
     else:
+        # Réaffiche l'historique
         afficher_historique()
 
     # ─── Traitement question suggérée ─────────────────────────────────────
@@ -376,7 +738,7 @@ Je peux vous aider avec :
 
     # ─── Zone de saisie ──────────────────────────────────────────────────
     question = st.chat_input(
-        "Posez votre question sur l'IFOAD-UJKZ... (ex: Comment s'inscrire ?)"
+        "💭 Posez votre question sur l'IFOAD-UJKZ... (ex: Comment s'inscrire ?)"
     )
     if question:
         traiter_question(question.strip(), agent)
