@@ -31,7 +31,22 @@ DOSSIER_BASE_VECTORIELLE.mkdir(parents=True, exist_ok=True)
 
 # ─── API ET MODÈLES ─────────────────────────────────────────────────────────
 # Clé API Groq (gratuite, sans carte bancaire)
+#
+# En local : lue depuis config/.env (CLE_API_GROQ=...)
+# Sur Streamlit Community Cloud : config/.env n'existe pas (il est dans
+# .gitignore et n'est donc jamais poussé sur GitHub, ce qui est normal et
+# volontaire pour ne jamais exposer la clé publiquement). Streamlit Cloud
+# fournit à la place un système de "Secrets" (Settings → Secrets de l'app),
+# accessible via st.secrets. On essaie donc .env d'abord, puis st.secrets.
 CLE_API_GROQ = os.getenv("CLE_API_GROQ", "")
+
+if not CLE_API_GROQ:
+    try:
+        import streamlit as st
+        CLE_API_GROQ = st.secrets.get("CLE_API_GROQ", "")
+    except Exception:
+        # Pas d'exécution dans Streamlit, ou pas de fichier secrets.toml : on ignore
+        pass
 
 # Modèle LLM pour la génération des réponses
 MODELE_LLM = os.getenv("MODELE_LLM", "openai/gpt-oss-120b")
