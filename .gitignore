@@ -20,7 +20,11 @@ logs/
 *.log
 
 # Données générées
-data/vectorielle/
+# NOTE : data/vectorielle/ (base ChromaDB) est volontairement PAS ignorée.
+# Elle ne pèse que ~700 Ko et doit être poussée sur GitHub pour que
+# l'application déployée (Streamlit Cloud) dispose des données sans avoir
+# à relancer le scraping + la vectorisation en ligne.
+# data/vectorielle/
 
 # Fichiers système
 .DS_Store
